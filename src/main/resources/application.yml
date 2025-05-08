@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: project-one
+
+  # PostgreSQL DataSource Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/one
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
