@@ -3,6 +3,7 @@ package mh.project_one.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,13 +11,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
-    private CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public CustomAuthenticationProvider(CustomUserDetailsService customUserDetailsService){
+    public CustomAuthenticationProvider(
+            CustomUserDetailsService customUserDetailsService,
+            PasswordEncoder passwordEncoder){
         this.customUserDetailsService = customUserDetailsService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -29,14 +32,20 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException(userName);
         }
 
-        if(!passwordEncoder.matches(password, member.getPassword())) {
+        if(!passwordEncoder.matches(password, customUser.getPassword())) {
             throw new BadCredentialsException();
         }
 
         return new UsernamePasswordAuthenticationToken(
                 customUser,
-                customUser.getPassword()
-        )
+                customUser.getPassword(),
+                customUser.getAuthorities()
+        );
+    }
+
+    @Override
+    public boolean supports(Class<?> authentication){
+        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
 
