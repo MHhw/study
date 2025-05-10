@@ -6,6 +6,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -24,16 +25,20 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String userName = authentication.getName();
+        String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        CustomUser customUser = (CustomUser) customUserDetailsService.loadUserByUsername(userName);
-        if(customUser == null){
-            throw new BadCredentialsException(userName);
+        CustomUser customUser;
+        try{
+            customUser = (CustomUser) customUserDetailsService.loadUserByUsername(username);
+        }
+        catch(UsernameNotFoundException e){
+            throw new BadCredentialsException(username+ "은(는) 등록된 사용자가 아닙니다.");
         }
 
+
         if(!passwordEncoder.matches(password, customUser.getPassword())) {
-            throw new BadCredentialsException();
+            throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
         }
 
         return new UsernamePasswordAuthenticationToken(

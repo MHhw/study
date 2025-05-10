@@ -19,7 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return securityRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(username + "은(는) 등록되지 않은 사용자입니다"));
+                .orElseThrow(() -> new UsernameNotFoundException("등록되지 않은 사용자입니다"));
     }
 
 }
