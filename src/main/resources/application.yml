@@ -20,6 +20,8 @@ spring:
 # 로깅 레벨 설정
 logging:
   level:
-    org.hibernate.SQL: DEBUG       # 실행되는 SQL 쿼리문을 DEBUG 레벨로 출력
-    org.hibernate.type.descriptor.sql: TRACE # SQL 바인딩 파라미터 값을 TRACE 레벨로 출력
-    org.hibernate.orm.jdbc.bind: TRACE # Hibernate 6+ 에서 바인딩 파라미터 로깅 (위의 것이 안될 경우 시도)
+    org:
+      hibernate:
+        SQL: DEBUG       # 실행되는 SQL 쿼리문을 DEBUG 레벨로 출력
+        type.descriptor.sql: TRACE # SQL 바인딩 파라미터 값을 TRACE 레벨로 출력
+        orm.jdbc.bind: TRACE # Hibernate 6+ 에서 바인딩 파라미터 로깅 (위의 것이 안될 경우 시도)

@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,8 +12,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
 /**
  * Spring Security 핵심 설정 클래스
@@ -46,11 +42,20 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // 로그인 실패 시 특정 URL로 리다이렉트하고 에러 메시지를 쿼리 파라미터로 전달
+    /**
+     * 로그인 성공 시
+     */
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return new AuthenticationSuccessHandler();
+    }
+
+    /**
+     * 로그인 실패 시
+     */
     @Bean
     public AuthenticationFailureHandler authenticationFailureHandler() {
-        // 로그인 페이지 URL을 /login?error=true 와 같이 설정하여 실패 메시지를 표시할 수 있습니다.
-        return new SimpleUrlAuthenticationFailureHandler("/login?error=true");
+        return new AuthenticationFailureHandler();
     }
 
     /**
@@ -75,7 +80,8 @@ public class SecurityConfig {
                         .usernameParameter("username") // 사용자 이름 파라미터명 (폼의 input name과 일치)
                         .passwordParameter("password") // 비밀번호 파라미터명 (폼의 input name과 일치)
                         .defaultSuccessUrl("/", true) // 로그인 성공 시 리다이렉트 될 기본 URL
-                        .failureHandler(authenticationFailureHandler()) // 로그인 실패 핸들러 등록
+                        .successHandler(authenticationSuccessHandler()) // 성공 핸들러
+                        .failureHandler(authenticationFailureHandler()) // 실패 핸들러
                         .permitAll() // 로그인 페이지 접근은 모두 허용
                 )
                 .logout(logout -> logout

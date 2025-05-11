@@ -39,7 +39,6 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-<script th:src="@{/js/user/login.js}"></script>
 <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function () {
         const loginForm = document.getElementById('loginForm');
@@ -51,7 +50,6 @@
                 event.preventDefault(); // Spring Security의 기본 폼 제출을 막습니다.
 
                 let isValid = true;
-
                 if (usernameInput.value.trim() === '') {
                     alert('아이디를 입력해주세요.');
                     usernameInput.focus();
@@ -67,32 +65,19 @@
                 }
 
                 if (isValid) {
-                    // jQuery AJAX 사용 (jQuery 라이브러리가 로드되어 있어야 함)
                     $.ajax({
                         type: 'POST',
                         url: '/perform_login', // SecurityConfig의 loginProcessingUrl과 일치
                         data: $(this).serialize(), // 폼 데이터 직렬화
                         success: function(response, status, xhr) {
-                            // 로그인 성공 시, SecurityConfig의 defaultSuccessUrl로 리다이렉션되거나
-                            // 여기서 직접 리다이렉션 처리를 할 수 있습니다.
-                            // Spring Security가 성공 시 리다이렉션을 이미 처리하므로,
-                            // 특별한 경우가 아니면 여기서 추가적인 리다이렉션은 필요 없을 수 있습니다.
-                            // 일반적으로는 성공 응답을 받으면 페이지가 자동으로 리다이렉션됩니다.
-                            // 만약 AJAX 응답으로 특정 URL을 받는다면 그 URL로 이동시킬 수 있습니다.
-                            window.location.href = "/qna/questions"; // 예: 로그인 성공 후 메인 페이지로 이동
+                            if (response.success) {
+                                window.location.href = response.redirectUrl;
+                            } else {
+                                alert(response.message);
+                            }
                         },
                         error: function(xhr, status, error) {
-                            // 로그인 실패 시 SecurityConfig의 failureHandler가 작동합니다.
-                            // 만약 failureHandler에서 /login?error=true로 리다이렉션한다면,
-                            // 이 페이지에서 에러 메시지를 표시할 수 있습니다.
-                            // xhr.responseJSON 등을 통해 서버로부터 구체적인 에러 메시지를 받을 수도 있습니다.
-                            if (xhr.status === 401) { // Unauthorized (인증 실패)
-                                alert('아이디 또는 비밀번호가 잘못되었습니다.');
-                            } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                                alert(xhr.responseJSON.message);
-                            } else {
-                                alert('로그인 중 오류가 발생했습니다.');
-                            }
+                            alert('로그인 처리 중 오류가 발생했습니다.');
                         }
                     });
                 }

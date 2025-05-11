@@ -17,9 +17,4 @@ public class LoginController {
         return "redirect:/qna/questions";
     }
 
-    // questions 컨트롤러로 이동시켜야
-    @GetMapping("/qna/questions")
-    public String mainPage() {
-        return "/qna/questions";
-    }
 }
