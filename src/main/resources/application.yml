@@ -8,3 +8,18 @@ spring:
     username: postgres
     password: 1234
     driver-class-name: org.postgresql.Driver
+
+  jpa:
+    show-sql: false # Hibernate가 직접 SQL을 콘솔에 출력하는 것을 비활성화 (로거를 통해 제어)
+    properties:
+      hibernate:
+        format_sql: true # SQL을 보기 좋게 포맷팅
+        # show_sql: true # 이 옵션 대신 아래 로거 설정을 사용하는 것이 더 유연합니다.
+    # defer-datasource-initialization: true # 데이터베이스 초기화 지연 (필요시 사용)
+
+# 로깅 레벨 설정
+logging:
+  level:
+    org.hibernate.SQL: DEBUG       # 실행되는 SQL 쿼리문을 DEBUG 레벨로 출력
+    org.hibernate.type.descriptor.sql: TRACE # SQL 바인딩 파라미터 값을 TRACE 레벨로 출력
+    org.hibernate.orm.jdbc.bind: TRACE # Hibernate 6+ 에서 바인딩 파라미터 로깅 (위의 것이 안될 경우 시도)
