@@ -14,7 +14,7 @@ public class LoginController {
     // 로그인 성공 후 보여줄 메인 페이지 또는 다른 적절한 페이지로 변경
     @GetMapping("/")
     public String home(){
-        return "redirect:/qna/questions";
+        return "redirect:/questions/view";
     }
 
 }

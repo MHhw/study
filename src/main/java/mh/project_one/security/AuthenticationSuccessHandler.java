@@ -22,7 +22,8 @@ public class AuthenticationSuccessHandler implements org.springframework.securit
 
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
-        result.put("redirectUrl", "/qna/questions");
+        // result.put("redirectUrl", "/qna/questions");
+        result.put("redirectUrl", "/questions/view");
 
         response.getWriter().write(objectMapper.writeValueAsString(result));
         response.getWriter().flush();

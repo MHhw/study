@@ -9,32 +9,24 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "comment")
+@Table(name = "vote",
+        uniqueConstraints = { // 한 사용자는 하나의 대상에 대해 한 번만 투표 가능
+                @UniqueConstraint(columnNames = {"user_id", "target_type", "target_id"})
+        })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Comment {
+public class Vote {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_id")
-    private Long commentId;
-
-    // 대댓글 기능을 위한 자기 참조 (부모 댓글)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Comment parent;
-
-    // 이 댓글에 달린 대댓글 목록 (자식 댓글들)
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> children = new ArrayList<>();
+    @Column(name = "vote_id")
+    private Long voteId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; // 댓글 작성자
+    private User user; // 투표한 사용자
 
     @Column(name = "target_type", nullable = false, length = 20)
     private String targetType; // "QUESTION" 또는 "ANSWER"
@@ -42,9 +34,8 @@ public class Comment {
     @Column(name = "target_id", nullable = false)
     private Long targetId; // Question ID 또는 Answer ID
 
-    @Lob
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
+    @Column(name = "vote_type", nullable = false)
+    private short voteType; // 1: 추천, -1: 비추천, (0: 중립 - 선택적)
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -55,33 +46,21 @@ public class Comment {
     private LocalDateTime updatedAt;
 
     // 다형적 연관관계를 위한 필드 (선택적, mappedBy에서 사용하기 위함)
-    // 이 필드들은 DB 컬럼으로 매핑되지 않도록 @Transient 처리하거나,
-    // targetType에 따라 하나의 필드만 값을 가지도록 로직을 구성합니다.
-    // 또는, 서비스 계층에서 targetId와 targetType으로 직접 부모 객체를 조회합니다.
-    // 여기서는 Question, Answer 엔티티에서 Comment 목록을 mappedBy로 참조하기 위한
-    // Comment 엔티티 측의 연관 필드를 정의합니다.
-    // 이 방식 대신 Comment 엔티티에서 Question, Answer 필드를 직접 가지지 않고,
-    // Question, Answer 엔티티에서 @Formula 등으로 댓글 수를 가져오거나,
-    // 서비스단에서 조회하는 것이 더 일반적일 수 있습니다 (N+1 문제 및 복잡성 고려).
-    // 여기서는 Question/Answer 엔티티의 @OneToMany mappedBy="questionTarget" 또는 "answerTarget"을 위해 추가합니다.
-    // 실제 DB 컬럼은 target_id 하나로 관리되므로, 이 필드들은 insertable=false, updatable=false로 설정합니다.
-
+    // Comment 엔티티와 유사하게, Question/Answer 엔티티에서 mappedBy를 위해 정의
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_id", referencedColumnName = "question_id", insertable = false, updatable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-    private Question questionTarget; // targetType이 "QUESTION"일 때 매핑
+    private Question questionTarget;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_id", referencedColumnName = "answer_id", insertable = false, updatable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-    private Answer answerTarget;   // targetType이 "ANSWER"일 때 매핑
-
+    private Answer answerTarget;
 
     @Builder
-    public Comment(Comment parent, User user, String targetType, Long targetId, String content, Question questionTarget, Answer answerTarget) {
-        this.parent = parent;
+    public Vote(User user, String targetType, Long targetId, short voteType, Question questionTarget, Answer answerTarget) {
         this.user = user;
         this.targetType = targetType;
         this.targetId = targetId;
-        this.content = content;
+        this.voteType = voteType;
         // targetType에 따라 questionTarget 또는 answerTarget 설정
         if ("QUESTION".equals(targetType) && questionTarget != null && questionTarget.getQuestionId().equals(targetId)) {
             this.questionTarget = questionTarget;
@@ -95,11 +74,10 @@ public class Comment {
         this.user = user;
     }
 
-    public void setParent(Comment parent) {
-        this.parent = parent;
-        if (parent != null) {
-            parent.getChildren().add(this);
-        }
+    // voteType 변경 메서드 (예: 추천했다가 비추천으로 변경)
+    public void changeVoteType(short newVoteType) {
+        this.voteType = newVoteType;
+        // this.updatedAt은 @UpdateTimestamp에 의해 자동으로 갱신됨
     }
 
     // Question, Answer 엔티티에서 mappedBy를 사용하기 위한 setter (실제 사용 시 주의)
@@ -113,11 +91,5 @@ public class Comment {
         if (answerTarget != null && "ANSWER".equals(this.targetType) && answerTarget.getAnswerId().equals(this.targetId)) {
             this.answerTarget = answerTarget;
         }
-    }
-
-    // 자식 댓글 추가 편의 메서드
-    public void addChildComment(Comment child) {
-        this.children.add(child);
-        child.setParent(this);
     }
 }
