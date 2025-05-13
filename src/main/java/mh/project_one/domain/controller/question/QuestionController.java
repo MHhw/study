@@ -1,6 +1,6 @@
 package mh.project_one.domain.controller.question;
 
-import mh.project_one.domain.service.QuestionService;
+import mh.project_one.domain.service.question.QuestionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

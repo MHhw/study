@@ -1,4 +1,4 @@
-package mh.project_one.domain.service;
+package mh.project_one.domain.service.question;
 
 import org.springframework.stereotype.Service;
 
