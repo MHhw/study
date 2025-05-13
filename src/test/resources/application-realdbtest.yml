@@ -1,0 +1,20 @@
+spring:
+  # PostgreSQL DataSource Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/one
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate # 또는 none. 실제 DB 스키마를 사용하므로 create, create-drop 등은 사용하지 않음
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

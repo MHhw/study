@@ -1,0 +1,25 @@
+# C:/Users/nerin/Desktop/study/src/test/resources/application-test.yml (권장 위치)
+spring:
+  # H2 인메모리 DB 사용 설정 (자세한 내용은 6번 항목에서!)
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE # H2 DB, PostgreSQL 호환 모드
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # 테스트 시작 시 스키마 생성, 테스트 종료 시 스키마 삭제
+    show-sql: true          # 테스트 중에는 SQL을 직접 보는 것이 디버깅에 유리할 수 있음
+    properties:
+      hibernate:
+        format_sql: true
+        # dialect: org.hibernate.dialect.H2Dialect # H2 사용 시 명시 (Spring Boot가 자동 감지하기도 함)
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type: TRACE # Hibernate 5 기준 파라미터 로깅, Hibernate 6에서는 type.descriptor.sql.BasicBinder 사용 가능
+        # org.hibernate.type.descriptor.sql.BasicBinder: TRACE # Hibernate 6+ 파라미터 로깅
