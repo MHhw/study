@@ -1,4 +1,4 @@
-package mh.project_one.domain.controller;
+package mh.project_one.domain.controller.product;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
