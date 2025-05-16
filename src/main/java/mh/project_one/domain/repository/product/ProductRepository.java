@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository // 해당 인터페이스가 데이터 접근 계층(repository)의 컴포넌트임을 명시
@@ -18,7 +19,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> { 
     // - count(): 엔티티 총 개수 반환
     // - existsById(Long id): ID로 존재 여부 확인
     // 등등...
-    
+
     // 나머지 작성 후 JUNIT TEST하고나서 다른 테이블과 조인하는 메서드 아래에 작성
     /*
         - findBy... : 조회 메서드임을 알림
@@ -47,5 +48,29 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> { 
 
     // 특정 가격보다 비싼 상품 목록 조회
     List<ProductEntity> findByProductPriceGreaterThan(BigDecimal price);
-        
+
+    // 대소문자 무시
+    List<ProductEntity> findByProductNameContainingIgnoreCate(String categoryCode);
+
+    // 카테고리 코드로 찾고 상품명 오름차순 정렬
+    List<ProductEntity> findByCategoryCodeOrderByProductNameAsc(String categoryCode);
+
+    // 가장 최근 출시된 상품 1개
+    ProductEntity findFirstByOrderByReleaseDateDesc();
+
+    // 평점 높은 상위 3개 상품
+    List<ProductEntity> findTop3ByOrderByRatingAverageDesc();
+
+    // 여러 값 중 1개라도 일치 (= IN)
+    List<ProductEntity> findByCategoryCodeIn(List<String> categoryCodes);
+
+    // 범위 지정(= BETWEEN)
+    List<ProductEntity> findByProductPriceBetween(BigDecimal startPrice, BigDecimal endPrice);
+
+    // 날짜 범위
+    List<ProductEntity> findByReleaseDateAfter(LocalDate date);
+
+    // 존재 여부 확인
+    boolean existsByProductName(String productName);
+
 }
