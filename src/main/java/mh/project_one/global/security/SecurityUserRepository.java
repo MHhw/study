@@ -10,4 +10,8 @@ public interface SecurityUserRepository extends JpaRepository<SecurityUser, Long
 
     // 사용자 이름(로그인 ID)으로 사용자 정보 조회
     Optional<SecurityUser> findByUsername(String username);
+
+    Optional<SecurityUser> findByEmail(String email);
+
+    Optional<SecurityUser> findByProviderAndProviderId(String provider, String providerId);
 }
