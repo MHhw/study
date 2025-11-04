@@ -1,6 +1,7 @@
 package mh.project_one.global.security;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.Collections;
 @Table(name = "users") // 데이터베이스 테이블명
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class SecurityUser implements UserDetails {
 
     @Id
@@ -85,6 +87,25 @@ public class SecurityUser implements UserDetails {
         this.lastLoginAt = lastLoginAt;
         this.isActive = isActive;
         this.isLocked = isLocked;
+    }
+
+    public void updateSocialInfo(String provider, String providerId, String email, String nickname, String profileImageUrl) {
+        this.provider = provider;
+        this.providerId = providerId;
+        if (email != null && !email.isBlank()) {
+            this.email = email;
+        }
+        if (nickname != null && !nickname.isBlank()) {
+            this.nickname = nickname;
+        }
+        this.profileImageUrl = profileImageUrl;
+        this.isActive = true;
+        this.isLocked = false;
+        this.lastLoginAt = LocalDateTime.now();
+    }
+
+    public void updateLastLogin(LocalDateTime loginAt) {
+        this.lastLoginAt = loginAt;
     }
 
     // UserDetails 인터페이스 구현
