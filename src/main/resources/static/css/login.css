@@ -160,3 +160,9 @@ body, html {
     height: 20px;
     margin-right: 10px;
 }
+
+.login-error {
+    margin-top: 10px;
+    color: #d63031; /* 에러 메시지를 붉은색으로 강조 */
+    font-size: 14px;
+}

@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Builder(toBuilder = true) // 소셜 사용자 동기화를 위해 변경 가능한 빌더 제공
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA 스펙상 PROTECTED 접근 수준의 기본 생성자 권장
 @AllArgsConstructor // 모든 필드를 사용하는 생성자 (빌더 패턴 사용 시 유용)
-@Builder // 빌더 패턴을 사용하기 위해 추가
 @Entity // 이 클래스가 JPA 엔티티임을 선언
 @Table(name = "users") // 데이터베이스의 "users" 테이블과 매핑
 public class User extends BaseTimeEntity { // createdAt, updatedAt 필드를 상속받음
@@ -73,5 +73,32 @@ public class User extends BaseTimeEntity { // createdAt, updatedAt 필드를 상
     public void addQuestion(Question question) {
         this.questions.add(question);
         question.setUser(this); // Question 엔티티에도 User를 설정 (연관관계의 주인 쪽)
+    }
+
+    // 소셜 로그인 이후 프로필 정보를 최신 상태로 갱신합니다.
+    public void updateSocialInfo(String provider, String providerId, String email, String nickname, String profileImageUrl) {
+        this.provider = provider;
+        this.providerId = providerId;
+        if (email != null && !email.isBlank()) {
+            this.email = email;
+        }
+        if (nickname != null && !nickname.isBlank()) {
+            this.nickname = nickname;
+        }
+        this.profileImageUrl = profileImageUrl;
+        this.isActive = true;
+        this.isLocked = false;
+    }
+
+    // 최근 로그인 시각과 계정 상태를 업데이트합니다.
+    public void updateLastLogin(LocalDateTime loginAt) {
+        this.lastLoginAt = loginAt;
+        this.isActive = true;
+        this.isLocked = false;
+    }
+
+    // 비밀번호 암호화 이후 저장된 값을 반영합니다.
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 }
